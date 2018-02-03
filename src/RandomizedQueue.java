@@ -1,12 +1,11 @@
 import edu.princeton.cs.algs4.StdOut;
 
-import java.security.SignatureException;
 import java.util.NoSuchElementException;
 
 public class RandomizedQueue<Item>
 {
   private Item[] items;
-  private int lastIndex = 0;
+  private int lastIndex = 1;
   private int firstIndex = 0;
   private int size = 0;
 
@@ -16,11 +15,11 @@ public class RandomizedQueue<Item>
     {
       StdOut.print(items[index] + " ");
     }
-    StdOut.println(":: size: " + size() + ", array size: " + items.length);
+    StdOut.println("[size: " + size() + ", array size: " + items.length + "]");
   }
   public RandomizedQueue()
   {
-    items = (Item[]) new Object[1];
+    items = (Item[]) new Object[2];
   }
 
   // is the deque empty?
@@ -38,8 +37,8 @@ public class RandomizedQueue<Item>
   private void expand(boolean allocateFreeSpaceInBeginning)
   {
     final int oldArrLength = items.length;
-    Item[] newItems = (Item[] ) new Object[oldArrLength * 2] ;
-    int firstIndexToCopyInNewArrAt = (allocateFreeSpaceInBeginning ? oldArrLength : 0);
+    Item[] newItems = (Item[] ) new Object[oldArrLength * 2];
+    int firstIndexToCopyInNewArrAt = (allocateFreeSpaceInBeginning ? oldArrLength : firstIndex + 1);
 
     for (int index = firstIndex + 1; index < lastIndex; ++index)
     {
@@ -57,12 +56,8 @@ public class RandomizedQueue<Item>
   private void shrink()
   {
     int capacity = items.length / 2;
-    if (capacity == 2)
-    {
-      return;
-    }
 
-    Item[] newItems = (Item[] ) new Object[capacity] ;
+    Item[] newItems = (Item[] ) new Object[capacity];
 
     int counter = 0;
 
@@ -88,11 +83,6 @@ public class RandomizedQueue<Item>
       expand(true);
     }
 
-    if (isEmpty())
-    {
-      lastIndex += 1;
-    }
-
     items[firstIndex--] = item;
     size++;
   }
@@ -109,6 +99,7 @@ public class RandomizedQueue<Item>
     {
       expand(false);
     }
+
     items[lastIndex++] = item;
     size++;
   }
@@ -121,7 +112,7 @@ public class RandomizedQueue<Item>
       throw new NoSuchElementException("no elements");
     }
 
-    if ((size() != 4) && (size() == items.length / 4))
+    if (size == items.length / 4)
     {
       shrink();
     }
@@ -140,7 +131,7 @@ public class RandomizedQueue<Item>
       throw new NoSuchElementException("no such element");
     }
 
-    if ((size() != 4) && (size() == items.length / 4))
+    if (size== items.length / 4)
     {
       shrink();
     }
@@ -150,5 +141,4 @@ public class RandomizedQueue<Item>
     size--;
     return item;
   }
-
 }

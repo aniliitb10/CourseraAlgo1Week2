@@ -1,22 +1,16 @@
 import edu.princeton.cs.algs4.StdOut;
+import edu.princeton.cs.algs4.StdRandom;
+import java.util.Iterator;
 
 import java.util.NoSuchElementException;
 
-public class RandomizedQueue<Item>
+public class RandomizedQueue<Item> implements Iterable<Item>
 {
   private Item[] items;
   private int lastIndex = 1;
   private int firstIndex = 0;
   private int size = 0;
 
-  public void print()
-  {
-    for (Integer index  = firstIndex+1;  index < lastIndex; ++index)
-    {
-      StdOut.print(items[index] + " ");
-    }
-    StdOut.println("[size: " + size() + ", array size: " + items.length + "]");
-  }
   public RandomizedQueue()
   {
     items = (Item[]) new Object[2];
@@ -71,7 +65,7 @@ public class RandomizedQueue<Item>
   }
 
   // add the item to the front
-  public void addFirst(Item item)
+  public void enqueue(Item item)
   {
     if (item == null)
     {
@@ -87,44 +81,15 @@ public class RandomizedQueue<Item>
     size++;
   }
 
-  // add the item to the end
-  public void addLast(Item item)
+  private void swapItem(int leftIndex, int rightIndex)
   {
-    if (item == null)
-    {
-      throw new IllegalArgumentException("null ptr");
-    }
-
-    if (lastIndex == items.length)
-    {
-      expand(false);
-    }
-
-    items[lastIndex++] = item;
-    size++;
-  }
-
-  // remove and return the item from the front
-  public Item removeFirst()
-  {
-    if (isEmpty())
-    {
-      throw new NoSuchElementException("no elements");
-    }
-
-    if (size == items.length / 4)
-    {
-      shrink();
-    }
-
-    Item item = items[++firstIndex];
-    items[firstIndex] = null;
-    size--;
-    return item;
+    Item backUpItem = items[leftIndex];
+    items[leftIndex] = items[rightIndex];
+    items[rightIndex] = backUpItem;
   }
 
   // remove and return the item from the end
-  public Item removeLast()
+  public Item dequeue()
   {
     if (isEmpty())
     {
@@ -136,9 +101,63 @@ public class RandomizedQueue<Item>
       shrink();
     }
 
-    Item item = items[--lastIndex];
+    int randomIndex = StdRandom.uniform(firstIndex +  1, lastIndex);
+    swapItem(randomIndex, --lastIndex);
+
+    Item item = items[lastIndex];
     items[lastIndex] = null;
     size--;
     return item;
+  }
+
+  // return a random item (but do not remove it)
+  public Item sample()
+  {
+    if (isEmpty())
+    {
+      throw new NoSuchElementException("no such element");
+    }
+    return items[StdRandom.uniform(firstIndex + 1, lastIndex)];
+  }
+
+  @Override
+  public Iterator<Item> iterator()
+  {
+    return new RandomizedQueueIterator();
+  }
+
+  private class RandomizedQueueIterator implements Iterator<Item>
+  {
+    int[] indices;
+    int nextIndex = 0;
+
+    public RandomizedQueueIterator()
+    {
+      indices = new int[size];
+      int counter = 0;
+
+      for (int index = firstIndex + 1; index < lastIndex; ++index)
+      {
+        indices[counter++] = index;
+      }
+      StdRandom.shuffle(indices);
+    }
+
+    @Override
+    public boolean hasNext()
+    {
+      return nextIndex != indices.length;
+    }
+
+    @Override
+    public Item next()
+    {
+      if (!hasNext())
+      {
+        throw new NoSuchElementException("no such elements");
+      }
+
+      return items[indices[nextIndex++]];
+    }
   }
 }

@@ -7,7 +7,7 @@ public class Deque<Item> implements Iterable<Item>
   private Node first = null;
   private Node last = null;
 
-  class Node
+  private class Node
   {
     private Item item = null;
     private Node next = null;
@@ -95,7 +95,11 @@ public class Deque<Item> implements Iterable<Item>
 
     Item item = first.item;
     first = first.next;
-    first.prev = null;
+
+    if (first != null)
+    {
+      first.prev = null;
+    }
     size--;
     return item;
   }
@@ -110,7 +114,14 @@ public class Deque<Item> implements Iterable<Item>
 
     Item item = last.item;
     last = last.prev;
-    last.next = null;
+    if (last != null)
+    {
+      last.next = null;
+    }
+    else
+    {
+      first = null;
+    }
     size--;
     return item;
   }
